@@ -173,78 +173,62 @@ def desviacion_estandar(vals_in):
 
     return varianza(vals_in)**(1/2)
 
-def percentil(vals_in,q,interpolacion="lineal"):
+def percentil(vals_in, q, interpolacion="lineal"):
     """
-    Calcula el percentil de una lista de numeros
-    Detecta y elimina valores NaN
+    Calcula el percentil de una lista de números. Ignora valores NaN.
     
-    Paràmetros
-    ----------
-    vals: lista
-        lista con los numeros
-        
-    Retorna
-    -------
-    percentil:float
-        percentil de los numeros (excluyendo NaNs)
+    Parámetros:
+    -----------
+    vals_in: list
+        Lista con los números.
+    q: float
+        Percentil a calcular (entre 0 y 100).
+    interpolacion: str
+        Método de interpolación ("lineal" es el único implementado).
+    
+    Retorna:
+    --------
+    percentil: float
+        Percentil de los números (excluyendo NaNs).
     """
-    
-    
-    #eliminamos los valores que sean NaNs
+    # Eliminar valores NaN
     vals=[]
     for v in vals_in:
         if math.isfinite(v):
             vals.append(v)
 
-    # Ordenar la lista dada como input in-place
-    vals.sort()
+    vals.sort()  # Ordenar la lista
 
-    if interpolacion=="lineal":
-        #Distancia entre el primer y ultimo elemtno,
-        #a ki kargi del eje de indices
-        dist=len(vals)-1
-
-        #calcular el indice efectio del percentil
-        ieff=dist*q/100
+    if interpolacion == "lineal":
         
-        #parte fraccional
-        fraction=ieff-int(ieff)
-        
-        #indice inferior
-        i=int((ieff)//1)
-        j=i+1
+        ieff = (len(vals) - 1) * (q / 100)
+        i = int(ieff) 
+        j = min(i + 1, len(vals) - 1)  
+        fraction = ieff - i  
 
-        #La interoplacion lineal se implementa con
-        # val_inf + (val_sup)- val_inf)*fraction,
-        percentile=vals[i]+vals[j]-vals[i]*fraction
-
+        # Interpolación lineal
+        percentile = vals[i] + (vals[j] - vals[i]) * fraction
         return percentile
-        
-        percentile=vals
+
+def rango_intc(vals_in):
     
-def rango_intercuartilico(vals_in):
     """
-    Calcula el rango intercuartilico de una lista de numeros
-    Detecta y elimina valores NaN
-    
-    Parámetros
-    ----------
-    vals: lista
-        lista con los numeros
+    calcula el rango intercuartilico. ignora valores nan
+    Parametros
+    -----------
+    vals: list
         
     Retorna
     -------
-    rango intercuartilico:float
-        rango intercuartilico de los numeros (excluyendo NaNs)
+    IQR: float
+        el rango intercuartilico (excluye NaNs)
     """
-    
-    
-    #eliminamos los valores que sean NaNs
     vals=[]
     for v in vals_in:
         if math.isfinite(v):
-            vals.append(vals_in)
-    iqr=percentil(vals,75)-percentil(vals,25)
+            vals.append(v)
+            
+    iqr= percentil(vals,75)-percentil(vals,25)
     return iqr
 
 def MAD(vals_in):
@@ -323,5 +307,7 @@ def correlacion(x,y):
             x_vals.append(x[i])
             y_vals.append(y[i])
             
-    rxy = covarianza(x,y)/( varianza(x) * varianza(y) )
-    return rxy                        
+    cov= covarianza(x,y)
+    var_x=varianza(x)
+    var_y=varianza(y)
+    return cov / math.sqrt((var_x*var_y))                
